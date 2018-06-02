@@ -11,7 +11,7 @@ app.use(bodyParser.json());
 
 
 
-// app.use(require('./routes/index.js'));
+app.use(require('./routes/personal.js'));
 
 
 
