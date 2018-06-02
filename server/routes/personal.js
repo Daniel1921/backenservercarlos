@@ -32,6 +32,38 @@ app.get('/personal', (req, res, next) => {
 
 });
 
+
+// =========================================
+// Obtener todos los personas una sola
+// =========================================
+
+
+app.get('/personal/uno/:id', (req, res, next) => {
+    var id = req.params.id;
+
+    Personal.findById(id).populate('personal', 'cedula area cargo email nombre fecha_nacimiento')
+        .exec((err, personal) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    error: err
+                });
+            }
+            if (!personal) {
+                return res.status(400).json({
+                    ok: false,
+                    mensaje: 'no existe'
+                })
+            }
+            res.status(200).json({
+                ok: true,
+                personal: personal
+            });
+        })
+
+
+});
+
 // =========================================
 // Crear un nuevo persona
 // =========================================
