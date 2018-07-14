@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
 var ClientesGym = require('../models/clientesgym');
-
+var mail = require('../../mail.js');
 var _ = require('underscore');
 
 
@@ -32,24 +32,24 @@ app.get('/clientes', (req, res, next) => {
 
 });
 
-/* 
+
 // =========================================
 // Obtener todos los personas una sola
 // =========================================
 
 
-app.get('/personal/uno/:id', (req, res, next) => {
+app.get('/cliente/uno/:id', (req, res, next) => {
     var id = req.params.id;
 
-    Personal.findById(id).populate('personal', 'cedula area cargo email nombre fecha_nacimiento')
-        .exec((err, personal) => {
+    ClientesGym.findById(id).populate('ClientesGym', 'cedula edad sexo nombre_completo precio fecha_caducidad')
+        .exec((err, cliente) => {
             if (err) {
                 return res.status(500).json({
                     ok: false,
                     error: err
                 });
             }
-            if (!personal) {
+            if (!cliente) {
                 return res.status(400).json({
                     ok: false,
                     mensaje: 'no existe'
@@ -57,12 +57,12 @@ app.get('/personal/uno/:id', (req, res, next) => {
             }
             res.status(200).json({
                 ok: true,
-                personal: personal
+                cliente: cliente
             });
         })
 
 
-}); */
+});
 
 // =========================================
 // Crear un nuevo cliente
@@ -92,6 +92,31 @@ app.post('/clientes', (req, res) => {
             ok: true,
             cliente: clienteIn
         });
+
+        var mailOptions = {
+            from: 'caci6640@gmail.com@gmail.com',
+            to: `danielmaflab@hotmail.com`,
+            subject: 'Nuevo cliente en el gym',
+            text: `el usuario de nombre ${clienteIn.nombre_completo}, de sexo ${clienteIn.sexo}, por un costo de ${clienteIn.precio}, estará abonado hasta ${clienteIn.fecha_caducidad}`
+        };
+
+        mail.transporter.sendMail(mailOptions, function(error, info) {
+            if (error) {
+                console.log(error);
+                res.status(500).json({
+                    error,
+                    mensaje: 'error al enviar mensaje'
+                })
+            } else {
+                console.log('Email enviado: ' + info.response);
+                return res.status(200).json({
+                    ok: true,
+                    mensaje: 'se ha enviado el mensaje correctamente',
+                    info: info.response
+
+                })
+            }
+        });
     });
 
 
@@ -102,7 +127,7 @@ app.post('/clientes', (req, res) => {
 // actualiza un cliente
 // =========================================
 
-app.put('/cliente/:id', function(req, res) {
+app.put('/clientes/:id', function(req, res) {
 
     let id = req.params.id;
     'cedula edad sexo nombre_completo precio fecha_caducidad'
