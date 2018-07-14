@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 
 
 app.use(require('./routes/personal.js'));
-
+app.use(require('./routes/clientesgym.js'));
 
 
 
